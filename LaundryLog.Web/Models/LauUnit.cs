@@ -11,7 +11,7 @@ namespace LaundryLog.Web.Models
         public int LauItemId { get; set; }
         public int LauLogId { get; set; }
         public int Quantity { get; set; }
-        public int Status { get; set; }
+        public bool Status { get; set; }
         public string Notes { get; set; }
 
         public LauItem LauItem { get; set; }

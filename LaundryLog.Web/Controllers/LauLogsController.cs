@@ -34,7 +34,11 @@ namespace LaundryLog.Web.Controllers
             }
 
             var lauLog = await _context.LauLogs
+                .Include(lu => lu.LauUnits)
+                .ThenInclude(li => li.LauItem)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (lauLog == null)
             {
                 return NotFound();
@@ -54,14 +58,24 @@ namespace LaundryLog.Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,DateIn,DateOut,Price,Status")] LauLog lauLog)
+        public async Task<IActionResult> Create([Bind("DateIn,DateOut,Price,Status")] LauLog lauLog)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(lauLog);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(lauLog);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
+            catch (DbUpdateException e)
+            {
+                ModelState.AddModelError("", "Unable to save changes. " +
+                    "Try again, and if the problem persists " +
+                    "see your system administrator.");
+            }
+            
             return View(lauLog);
         }
 
@@ -84,40 +98,40 @@ namespace LaundryLog.Web.Controllers
         // POST: LauLogs/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,DateIn,DateOut,Price,Status")] LauLog lauLog)
+        public async Task<IActionResult> EditPost(int? id)
         {
-            if (id != lauLog.Id)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var lauLogToUpdate = await _context.LauLogs.FirstOrDefaultAsync(ll => ll.Id == id);
+
+            if (await TryUpdateModelAsync<LauLog>(
+                lauLogToUpdate,
+                "",
+                ll => ll.DateIn, ll => ll.DateOut, ll => ll.Price, ll => ll.Status))
             {
                 try
                 {
-                    _context.Update(lauLog);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch(DbUpdateException e)
                 {
-                    if (!LauLogExists(lauLog.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                    "Try again, and if the problem persists " +
+                    "see your system administrator.");
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(lauLog);
+
+            return View(lauLogToUpdate);
         }
 
         // GET: LauLogs/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
         {
             if (id == null)
             {
@@ -125,10 +139,18 @@ namespace LaundryLog.Web.Controllers
             }
 
             var lauLog = await _context.LauLogs
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (lauLog == null)
             {
                 return NotFound();
+            }
+
+            if (saveChangesError.GetValueOrDefault())
+            {
+                ViewData["ErrorMessage"] = "Delete failed. Try again, and if the problem persists " +
+                    "see your system administrator.";
             }
 
             return View(lauLog);
@@ -140,9 +162,22 @@ namespace LaundryLog.Web.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var lauLog = await _context.LauLogs.FindAsync(id);
-            _context.LauLogs.Remove(lauLog);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            if (lauLog == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                _context.LauLogs.Remove(lauLog);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException e)
+            {
+                return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
+            }
         }
 
         private bool LauLogExists(int id)

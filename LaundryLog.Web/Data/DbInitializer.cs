@@ -39,7 +39,7 @@ namespace LaundryLog.Web.Data
 
             var lauUnits = new LauUnit[]
             {
-                new LauUnit{LauItemId=1,LauLogId=1,Quantity=1,Status=1,Notes=""}
+                new LauUnit{LauItemId=1,LauLogId=1,Quantity=1,Status=true,Notes=""}
             };
             foreach (LauUnit l in lauUnits)
             {
