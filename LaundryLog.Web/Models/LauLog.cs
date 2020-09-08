@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LaundryLog.Web.Models
 {
-    public class LauLog
+    public class LauLog : BaseModel
     {
         public int Id { get; set; }
         public DateTime DateIn { get; set; }
