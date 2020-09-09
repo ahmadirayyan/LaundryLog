@@ -40,14 +40,12 @@ namespace LaundryLog.Web.Controllers
             if (!String.IsNullOrEmpty(searchString))
             {
                 lauLogs = lauLogs.Where(ll => ll.DateIn.ToLongDateString().Contains(searchString)
-                || ll.DateOut.ToLongDateString().Contains(searchString)
-                || ll.Price.ToString().Contains(searchString)
-                || ll.Status.ToString().Contains(searchString));
+                || ll.DateOut.ToLongDateString().Contains(searchString));
             }
 
             lauLogs = lauLogs.OrderByDescending(ll => ll.DateIn);
 
-            int pageSize = 3;
+            int pageSize = 5;
             return View(await PaginatedList<LauLog>.CreateAsync(lauLogs.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 

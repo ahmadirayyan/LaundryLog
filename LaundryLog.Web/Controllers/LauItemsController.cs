@@ -20,9 +20,31 @@ namespace LaundryLog.Web.Controllers
         }
 
         // GET: LauItems
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string currentFilter, string searchString, int? pageNumber)
         {
-            return View(await _context.LauItems.ToListAsync());
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            var lauItems = from li in _context.LauItems
+                           select li;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                lauItems = lauItems.Where(li => li.Category.Contains(searchString)
+                || li.Color.Contains(searchString)
+                || li.Brand.Contains(searchString));
+            }
+
+            int pageSize = 5;
+            return View(await PaginatedList<LauItem>.CreateAsync(lauItems.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: LauItems/Details/5
