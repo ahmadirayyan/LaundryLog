@@ -22,16 +22,13 @@
                 @Html.DisplayNameFor(model => model.Notes)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LauItem)
+                Items
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LauLog)
+                Date In
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DateCreated)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DateModified)
+                Date Out
             </th>
             <th></th>
         </tr>
@@ -49,16 +46,13 @@
                 @Html.DisplayFor(modelItem => item.Notes)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.LauItem.Id)
+                @item.LauItem.Category @item.LauItem.Color @item.LauItem.Brand
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.LauLog.Id)
+                @Html.DisplayFor(modelItem => item.LauLog.DateIn)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DateCreated)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateModified)
+                @Html.DisplayFor(modelItem => item.LauLog.DateOut)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

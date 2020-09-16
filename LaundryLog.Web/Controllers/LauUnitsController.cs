@@ -49,8 +49,25 @@ namespace LaundryLog.Web.Controllers
         // GET: LauUnits/Create
         public IActionResult Create()
         {
-            ViewData["LauItemId"] = new SelectList(_context.LauItems, "Id", "Id");
-            ViewData["LauLogId"] = new SelectList(_context.LauLogs, "Id", "Id");
+            var lauItems = _context.LauItems
+                .Select(li => new
+                {
+                    Value = li.Id,
+                    Text = $"{li.Category} {li.Color} {li.Brand}"
+                })
+                .ToList();
+
+            var lauLogs = _context.LauLogs
+                .Select(ll => new
+                {
+                    Value = ll.Id,
+                    Text = $"{ll.DateIn.ToShortDateString()}"
+                })
+                .ToList();
+
+            ViewData["LauItemId"] = new SelectList(lauItems, "Value", "Text");
+            ViewData["LauLogId"] = new SelectList(lauLogs, "Value", "Text");
+
             return View();
         }
 
