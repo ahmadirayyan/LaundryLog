@@ -25,56 +25,74 @@
     {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha512-s+xg36jbIujB2S2VKfpGmlC3T5V2TF3lY48DX7u2r9XzGzgPsa6wTpOQA7J9iffvdeBN0q9tKzRxVxw1JviZPg==" crossorigin="anonymous"></script>
     <script>
-        var ctx = document.getElementById('laundryChart');
-        var laundryChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [
-                    "January", "February", "March", "April", "May", "June", "July"
-                ],
-                datasets: [{
-                    label: "Laundry Items",
-                    data: [65, 59, 80, 81, 56, 55, 40],
-                    fill: false,
-                    borderColor: "rgb(75, 192, 192)",
-                    lineTension: 0.1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            min: 0
+        $(document).ready(function () {
+            RefreshLauItemsChart();
+            RefreshLauPricesChart();
+        });
+    </script>
+    <script>
+        function RefreshLauItemsChart() {
+            $.ajax({
+                url: "@Url.Action("SummaryLauItems","LauLogs")",
+                type: "GET",
+                success: function (data, textStatus, jqXHR) {
+                    var ctx = document.getElementById('laundryChart');
+                    var laundryChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.data.label,
+                            datasets: [{
+                                label: "Laundry Items",
+                                data: data.data.value,
+                                fill: false,
+                                borderColor: "rgb(75, 192, 192)",
+                                lineTension: 0.1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        min: 0
+                                    }
+                                }]
+                            }
                         }
-                    }]
+                    })
                 }
-            }
-        })
+            })
+        }
 
-        var ctx = document.getElementById('priceChart');
-        var laundryChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [
-                    "January", "February", "March", "April", "May", "June", "July"
-                ],
-                datasets: [{
-                    label: "Laundry Prices",
-                    data: [12000, 15000, 80000, 57000, 56000, 30000, 10000],
-                    fill: false,
-                    borderColor: "rgb(75, 192, 192)",
-                    lineTension: 0.1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            min: 0
+        function RefreshLauPricesChart() {
+            $.ajax({
+                url: "@Url.Action("SummaryLauPrices","LauLogs")",
+                type: "GET",
+                success: function (data, textStatus, jqXHR) {
+                    var ctx = document.getElementById('priceChart');
+                    var laundryChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.data.label,
+                            datasets: [{
+                                label: "Laundry Prices",
+                                data: data.data.value,
+                                fill: false,
+                                borderColor: "rgb(75, 192, 192)",
+                                lineTension: 0.1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        min: 0
+                                    }
+                                }]
+                            }
                         }
-                    }]
+                    })
                 }
-            }
-        })
+            })
+        }
     </script>
 }

@@ -13,6 +13,7 @@ namespace LaundryLog.Web.Controllers
     public class LauLogsController : Controller
     {
         private readonly LauContext _context;
+        private readonly List<string> months = new List<string>() { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
         public LauLogsController(LauContext context)
         {
@@ -202,6 +203,54 @@ namespace LaundryLog.Web.Controllers
             {
                 return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
             }
+        }
+
+        public JsonResult SummaryLauItems()
+        {
+            var lauUnits = _context.LauUnits;
+            List<int> value = new List<int>();
+            List<string> label = new List<string>();
+
+            DateTime start = DateTime.Parse("01/" + DateTime.Now.Month + "/" + DateTime.Now.Year);
+
+            for (int i = 0; i < 6; i++)
+            {
+                var tmp = lauUnits.Where(x => x.LauLog.DateIn >= start && x.LauLog.DateIn < start.AddMonths(1)).Select(x => x.Quantity).Sum();
+                
+                value.Add(tmp);
+                label.Add("" + months[start.Month - 1] + " " + start.Year + "");
+
+                start = start.AddMonths(-1);
+            }
+
+            value.Reverse();
+            label.Reverse();
+
+            return Json(new { message = "Success", data = new { value = value, label = label } });
+        }
+
+        public JsonResult SummaryLauPrices()
+        {
+            var lauLogs = _context.LauLogs;
+            List<double> value = new List<double>();
+            List<string> label = new List<string>();
+
+            DateTime start = DateTime.Parse("01/" + DateTime.Now.Month + "/" + DateTime.Now.Year);
+
+            for (int i = 0; i < 6; i++)
+            {
+                var tmp = lauLogs.Where(x => x.DateIn >= start && x.DateIn < start.AddMonths(1)).Select(x => x.Price).Sum();
+
+                value.Add(tmp);
+                label.Add("" + months[start.Month - 1] + " " + start.Year + "");
+
+                start = start.AddMonths(-1);
+            }
+
+            value.Reverse();
+            label.Reverse();
+
+            return Json(new { message = "Success", data = new { value = value, label = label } });
         }
 
         private bool LauLogExists(int id)
